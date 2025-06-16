@@ -9,6 +9,8 @@ async function getAllTasks() {
     return data;
 }
 
+// La comento, ya que no la usé porque decidí trabajar con la lista de tareas
+// completa y buscar por aquella tarea que tenia el id del cual necesitaba
 // async function getTaskById(id) {
 //     const { data } = await api.get(`${id}`);
 //     return data;
@@ -16,11 +18,20 @@ async function getAllTasks() {
 
 async function addTask(task) {
     await api.post('', task);
+}
 
+async function updateTask(id, task) {
+    await api.put(`/${id}`, task);
+}
+
+async function deleteTask(id) {
+    await api.delete(`/${id}`);
 }
 
 export default {
     getAllTasks,
     // getTaskById,
-    addTask
+    addTask,
+    updateTask,
+    deleteTask
 }

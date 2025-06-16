@@ -11,29 +11,53 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchTasks() {
+  // Uso de servicios
+  async function fetchTasks() {
       const response = await taskSvc.getAllTasks();
       setTasks(response);
-    }
+  }
+
+  useEffect(() => {
     fetchTasks();
   }, []);
 
   async function handleAddTask(newTaskData) {
-    const newTask = await taskSvc.addTask(newTaskData);
-    setTasks([...tasks, newTask]);
-    navigate('/tasks');
+    await taskSvc.addTask(newTaskData);
+    await fetchTasks();
+    alert(`Se agrego una nueva tarea: ${newTaskData.id}`)
+    handleViewAllTasks();
   }
 
-  function alta() {
+  async function handleUpdateTask(id, newTaskData) {
+    await taskSvc.updateTask(id, newTaskData);
+    await fetchTasks();
+
+    alert(`Se actualizo una nueva tarea: ${id}`);
+    handleViewAllTasks();
+  }
+
+  async function handleDeleteTask(id) {
+    await taskSvc.deleteTask(id);
+    await fetchTasks();
+
+  }
+
+  // Funciones para la lógica
+  function handleCreateTask() {
     navigate('tasks/new')
   }
 
-  function consultarDetalle(id) {
+  function handleViewTask(id) {
     navigate(`/tasks/${id}`);
-    // console.log(id) -- Devuelve correctamente el ID
   }
 
+  function handleEditTask(id) {
+    navigate(`/tasks/edit/${id}`);
+  }
+
+  function handleViewAllTasks() {
+    navigate('/tasks');
+  }
 
   return (
     <>
@@ -41,22 +65,32 @@ function App() {
         <Route path="/tasks" element={
           <TaskList
             tasks={tasks}
-            consultarDetalle={consultarDetalle}
-            alta={alta} />
-          } />
-
-        <Route path="/tasks/new" element={
-          <TaskForm onSubmit={handleAddTask} />
+            handleViewTask={handleViewTask}
+            handleCreateTask={handleCreateTask}
+            handleEditTask={handleEditTask}
+            handleDeleteTask={handleDeleteTask} />
           } />
 
         <Route path="/tasks/:id" element={
           <TaskItem
-            tasks={tasks} />
+            tasks={tasks}
+            handleEditTask={handleEditTask}
+            handleViewAllTasks={handleViewAllTasks} />
+          } />
+
+        <Route path="/tasks/new" element={
+          <TaskForm 
+          tasks={tasks}
+          onSubmit={handleAddTask}
+          handleViewAllTasks={handleViewAllTasks}/>
           } />
         
-        {/* <Route path="/tasks/edit" element={
-          <TaskForm onSubmit={handleAddTask} />
-          } /> */}
+        <Route path="/tasks/edit/:id" element={
+          <TaskForm 
+          tasks={tasks}
+          onSubmit={handleUpdateTask}
+          handleViewAllTasks={handleViewAllTasks} />
+          } />
         
         <Route path="*" element={<Navigate to="/tasks" replace />} />
       </Routes>
